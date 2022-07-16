@@ -1,4 +1,4 @@
-titles = window.titles = []
+titles = []
 
 var content  = 'abc';
 var mimeType = 'application/json';
@@ -25,7 +25,9 @@ if(bf_page != page || bf_page == 0)
 {
     next_page = page == 0 ? 2 : page + 1
 
-    document.getElementsByClassName('NC-MediaObjectTitle').forEach(element => titles.push(element.innerText))
+    document.getElementsByClassName('NC-MediaObjectTitle').forEach(element => {
+        titles.push({title: element.innerText, url: element.parentNode.parentNode.parentNode.href})
+    });
 
     var bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
     var blob = new Blob([ bom, JSON.stringify(titles) ], { "type" : mimeType });
