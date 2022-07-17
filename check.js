@@ -10,6 +10,7 @@ const result = {}
 
 list = data.list
 ids = []
+obj_ids = []
 
 if (process.argv.length == 2) {
     db.serialize(() => {
@@ -29,22 +30,27 @@ if (process.argv.length == 2) {
             }
             else {
                 rows.forEach((row) => {ids.push(row.id)})
+                list.forEach((obj) => {
+                    obj.id = obj.url.split(/watch\//)[1]
+                    obj_ids.push(obj.id);
+                })
+                
+                samevalues = existsSameValue(obj_ids)
+                console.log("existsSameValue: count:"+samevalues.length)
+                console.log(samevalues)
 
                 skip_data_list = []
+                done_input_same_values_list = []
                 list.forEach((obj) => {
-                
-                    obj.id = obj.url.split(/watch\//)[1]
-                    if(!ids.includes(obj.id)){
+                    if(!ids.includes(obj.id)) {
                         db.run("insert into mylists(id, title, url) values(?,?,?)", obj.id, obj.title, obj.url, err => {if (err) {console.log(err)}} );
+                        ids.push(obj.id)
                     }else{
                         skip_data_list.push(obj.id)
                     }
                 });
                 console.log(`skip_data: (count:${skip_data_list.length})`)
-                samevalues = existsSameValue(skip_data_list)
-                console.log("existsSameValue: ["+samevalues+"] count:"+samevalues.length)
     
-                sleep(5)
                 db.all("SELECT count(*) FROM mylists", (err, rows) => {
                     if (err) {
                         console.log(err)
